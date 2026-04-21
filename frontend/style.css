@@ -1,0 +1,249 @@
+/* Global Reset & Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    color: #1c1e21;
+    line-height: 1.6;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.error-text {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
+/* Navbar / Header */
+header {
+    background-color: #0056b3;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+#auth-buttons button {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+#auth-buttons button:hover {
+    background: white;
+    color: #0056b3;
+}
+
+/* Main Layout */
+main {
+    max-width: 680px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Forms & Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #ccd0d5;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #f5f6f7;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #0056b3;
+    background-color: white;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #004494;
+}
+
+/* Create Post Specifics */
+.post-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.post-controls select {
+    width: auto;
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.post-controls label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #606770;
+}
+
+.post-controls button {
+    width: auto;
+    padding: 10px 25px;
+}
+
+/* Post & Reply Cards (Dynamically injected by app.js) */
+.post-card {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.post-card:last-child {
+    border-bottom: none;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #606770;
+}
+
+.post-author {
+    font-weight: 600;
+    color: #050505;
+}
+
+.post-category {
+    background-color: #e4e6eb;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.post-text {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    white-space: pre-wrap; /* Keeps line breaks from the textarea */
+}
+
+/* Replies Section */
+.replies-container {
+    margin-top: 15px;
+    padding-left: 15px;
+    border-left: 2px solid #e4e6eb;
+}
+
+.reply-card {
+    background-color: #f0f2f5;
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.reply-header {
+    font-size: 0.85rem;
+    color: #606770;
+    margin-bottom: 4px;
+}
+
+.reply-author {
+    font-weight: 600;
+    color: #050505;
+}
+
+.reply-text {
+    font-size: 0.95rem;
+}
+
+.reply-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    align-items: center;
+}
+
+.reply-form input[type="text"] {
+    margin-bottom: 0;
+    flex: 1;
+    border-radius: 20px;
+    padding: 8px 15px;
+}
+
+.reply-form label {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.reply-form button {
+    width: auto;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
