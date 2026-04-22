@@ -16,6 +16,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day expiration
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 
 def verify_password(plain_password, hashed_password):
     """Verify if a plain password matches the hashed password."""
@@ -51,4 +52,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
         raise credentials_exception
+    return user
+
+def get_optional_current_user(token: str = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):
+    """Decode the JWT token if present and fetch the user, otherwise return None."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+        
+    user = db.query(User).filter(User.id == int(user_id)).first()
     return user

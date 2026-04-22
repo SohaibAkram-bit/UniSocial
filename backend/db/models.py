@@ -33,11 +33,28 @@ class Post(Base):
     text = Column(Text, nullable=False)
     category = Column(String, nullable=False)
     is_anonymous = Column(Boolean, default=False)
+    vibe_count = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     author = relationship("User", back_populates="posts")
     replies = relationship("Reply", back_populates="post")
+    vibes = relationship("Vibe", back_populates="post", cascade="all, delete-orphan")
+
+
+class Vibe(Base):
+    """
+    Tracks which user vibed (upvoted) which post.
+    Uses a composite primary key to ensure a user can only vibe a post once.
+    """
+    __tablename__ = "vibes"
+
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    post_id = Column(Integer, ForeignKey("posts.id"), primary_key=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    post = relationship("Post", back_populates="vibes")
 
 
 class Reply(Base):

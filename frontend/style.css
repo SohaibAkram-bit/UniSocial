@@ -1,15 +1,41 @@
+/* Variables */
+:root {
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --bg-color: #f3f4f6;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --vibe-active: #ef4444;
+    --vibe-hover: #fca5a5;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
 /* Global Reset & Base Styles */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-    background-color: #f0f2f5;
-    color: #1c1e21;
+    background-color: var(--bg-color);
+    color: var(--text-main);
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 /* Utility Classes */
@@ -17,21 +43,24 @@ body {
     display: none !important;
 }
 
-.error-text {
-    color: #dc3545;
+.error-text, .error {
+    color: var(--vibe-active);
     font-size: 0.9rem;
     margin-top: 8px;
+    background: #fee2e2;
+    padding: 8px;
+    border-radius: 6px;
 }
 
 /* Navbar / Header */
 header {
-    background-color: #0056b3;
+    background: linear-gradient(135deg, #1e3a8a, var(--primary));
     color: white;
-    padding: 15px 20px;
+    padding: 16px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-md);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -40,46 +69,67 @@ header {
 header h1 {
     font-size: 1.5rem;
     letter-spacing: 0.5px;
+    font-weight: 700;
 }
 
 #auth-buttons button {
-    background: transparent;
-    border: 1px solid white;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     color: white;
-    padding: 8px 15px;
-    border-radius: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
     cursor: pointer;
     margin-left: 10px;
     font-weight: 600;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 #auth-buttons button:hover {
     background: white;
-    color: #0056b3;
+    color: #1e3a8a;
 }
 
 /* Main Layout */
 main {
-    max-width: 680px;
-    margin: 20px auto;
-    padding: 0 15px;
+    max-width: 720px;
+    margin: 24px auto;
+    padding: 0 16px;
 }
 
 section {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.3s ease;
+}
+
+section:hover {
+    box-shadow: var(--shadow-md);
 }
 
 h2 {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-size: 1.25rem;
-    color: #333;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    color: var(--text-main);
+    border-bottom: 2px solid var(--bg-color);
+    padding-bottom: 12px;
+    font-weight: 600;
+}
+
+#feed-section {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+#feed-section:hover {
+    box-shadow: none;
+}
+#feed-section h2 {
+    border-bottom: none;
 }
 
 /* Forms & Inputs */
@@ -89,40 +139,47 @@ input[type="password"],
 textarea,
 select {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 12px;
-    border: 1px solid #ccd0d5;
-    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     font-size: 1rem;
-    background-color: #f5f6f7;
+    background-color: #f9fafb;
+    transition: all 0.2s ease;
 }
 
 input:focus, textarea:focus, select:focus {
     outline: none;
-    border-color: #0056b3;
+    border-color: var(--primary);
     background-color: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 100px;
 }
 
 button[type="submit"] {
     width: 100%;
     padding: 12px;
-    background-color: #0056b3;
+    background-color: var(--primary);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 1rem;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.3s;
 }
 
 button[type="submit"]:hover {
-    background-color: #004494;
+    background-color: var(--primary-hover);
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 /* Create Post Specifics */
@@ -130,7 +187,7 @@ button[type="submit"]:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
     flex-wrap: wrap;
 }
 
@@ -143,107 +200,233 @@ button[type="submit"]:hover {
 .post-controls label {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.9rem;
+    gap: 8px;
+    font-size: 0.95rem;
     cursor: pointer;
-    color: #606770;
+    color: var(--text-muted);
 }
 
 .post-controls button {
     width: auto;
-    padding: 10px 25px;
+    padding: 10px 28px;
 }
 
-/* Post & Reply Cards (Dynamically injected by app.js) */
+/* Post & Reply Cards */
 .post-card {
-    border-bottom: 1px solid #eee;
-    padding: 15px 0;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.3s ease;
+}
+
+.post-card:hover {
+    box-shadow: var(--shadow-md);
 }
 
 .post-card:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .post-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-    color: #606770;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
 .post-author {
-    font-weight: 600;
-    color: #050505;
+    font-weight: 700;
+    color: var(--text-main);
 }
 
 .post-category {
-    background-color: #e4e6eb;
-    padding: 4px 10px;
-    border-radius: 12px;
+    background-color: #e0e7ff;
+    color: #3730a3;
+    padding: 4px 12px;
+    border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .post-text {
-    font-size: 1rem;
-    margin-bottom: 15px;
-    white-space: pre-wrap; /* Keeps line breaks from the textarea */
+    font-size: 1.05rem;
+    margin-bottom: 16px;
+    white-space: pre-wrap;
+    color: #374151;
+}
+
+.meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+/* Action Buttons */
+.post-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.post-actions button {
+    background: #f3f4f6;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.post-actions button:hover {
+    background: #e5e7eb;
+}
+
+.vibe-btn.vibed {
+    background: #fee2e2;
+    color: var(--vibe-active);
+}
+
+.vibe-btn.vibed:hover {
+    background: var(--vibe-hover);
+}
+
+.vibe-count {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
 }
 
 /* Replies Section */
+.replies-section {
+    margin-top: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+}
+
 .replies-container {
-    margin-top: 15px;
-    padding-left: 15px;
-    border-left: 2px solid #e4e6eb;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .reply-card {
-    background-color: #f0f2f5;
-    padding: 10px 12px;
-    border-radius: 12px;
-    margin-bottom: 10px;
+    background-color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
 }
 
-.reply-header {
-    font-size: 0.85rem;
-    color: #606770;
-    margin-bottom: 4px;
+.reply-card strong {
+    color: var(--text-main);
+    margin-right: 6px;
 }
 
-.reply-author {
-    font-weight: 600;
-    color: #050505;
+.no-replies {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.9rem;
 }
 
-.reply-text {
+/* Nested Reply Form */
+.nested-reply-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.reply-textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
     font-size: 0.95rem;
-}
-
-.reply-form {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    align-items: center;
-}
-
-.reply-form input[type="text"] {
     margin-bottom: 0;
-    flex: 1;
-    border-radius: 20px;
-    padding: 8px 15px;
 }
 
-.reply-form label {
-    font-size: 0.85rem;
+.reply-form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reply-anon-label {
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--text-muted);
     display: flex;
     align-items: center;
-    gap: 5px;
-    cursor: pointer;
+    gap: 6px;
 }
 
-.reply-form button {
-    width: auto;
-    padding: 8px 15px;
+.reply-submit-btn {
+    padding: 8px 20px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
     border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: auto;
+}
+
+.reply-submit-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+    
+    #auth-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    #auth-buttons button {
+        margin-left: 0;
+    }
+    
+    .post-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .post-controls select, .post-controls button {
+        width: 100%;
+    }
+    
+    .reply-form-actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .reply-submit-btn {
+        width: 100%;
+    }
 }

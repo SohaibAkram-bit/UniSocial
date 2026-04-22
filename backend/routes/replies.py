@@ -21,7 +21,19 @@ def get_replies(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Post not found")
     
     replies = db.query(Reply).filter(Reply.post_id == id).order_by(Reply.created_at.asc()).all()
-    return replies
+    
+    result = []
+    for reply in replies:
+        display_name = "UOL Student" if reply.is_anonymous else reply.author.first_name
+        result.append(ReplyResponse(
+            id=reply.id,
+            post_id=reply.post_id,
+            text=reply.text,
+            is_anonymous=reply.is_anonymous,
+            created_at=reply.created_at,
+            author={"first_name": display_name}
+        ))
+    return result
 
 @router.post("/{id}/replies", response_model=ReplyResponse, status_code=status.HTTP_201_CREATED)
 def create_reply(id: int, reply: ReplyCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -39,4 +51,13 @@ def create_reply(id: int, reply: ReplyCreate, db: Session = Depends(get_db), cur
     db.add(new_reply)
     db.commit()
     db.refresh(new_reply)
-    return new_reply
+    
+    display_name = "UOL Student" if new_reply.is_anonymous else current_user.first_name
+    return ReplyResponse(
+        id=new_reply.id,
+        post_id=new_reply.post_id,
+        text=new_reply.text,
+        is_anonymous=new_reply.is_anonymous,
+        created_at=new_reply.created_at,
+        author={"first_name": display_name}
+    )

@@ -39,8 +39,17 @@ class AuthorResponse(BaseModel):
 
 # --- REPLY SCHEMAS ---
 class ReplyCreate(BaseModel):
-    text: str
+    text: str = Field(min_length=1, max_length=2000)
     is_anonymous: bool = False
+
+    @field_validator('text')
+    @classmethod
+    def validate_text_not_empty(cls, v: str) -> str:
+        """Ensure the text is not just whitespace and strip it."""
+        stripped_v = v.strip()
+        if not stripped_v:
+            raise ValueError("Text cannot be empty or contain only whitespace")
+        return stripped_v
 
 class ReplyResponse(BaseModel):
     id: int
@@ -55,17 +64,28 @@ class ReplyResponse(BaseModel):
 
 # --- POST SCHEMAS ---
 class PostCreate(BaseModel):
-    text: str
+    text: str = Field(min_length=1, max_length=5000)
     # Enforce strict category matching as defined in your README
     category: Literal["Academic", "Mental Health", "Social", "Rant", "Advice"]
     is_anonymous: bool = False
+
+    @field_validator('text')
+    @classmethod
+    def validate_text_not_empty(cls, v: str) -> str:
+        """Ensure the text is not just whitespace and strip it."""
+        stripped_v = v.strip()
+        if not stripped_v:
+            raise ValueError("Text cannot be empty or contain only whitespace")
+        return stripped_v
 
 class PostResponse(BaseModel):
     id: int
     text: str
     category: str
     is_anonymous: bool
+    vibe_count: int = 0
     created_at: datetime
     author: AuthorResponse
+    has_vibed: bool = False
 
     model_config = {"from_attributes": True}

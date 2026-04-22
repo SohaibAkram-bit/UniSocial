@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db.connection import engine, Base
 import db.models  # Import models so SQLAlchemy knows about them before creating tables
-from routes import auth, posts, replies
+from routes import auth, posts, replies, vibes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(posts.router)
 app.include_router(replies.router)
+app.include_router(vibes.router)
 
 @app.get("/")
 def read_root():
