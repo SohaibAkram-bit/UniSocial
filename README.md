@@ -16,11 +16,14 @@ MVP is complete and working locally. Not hosted yet.
 - Student signup restricted to UOL email domains only
 - Login with JWT authentication
 - Create a post — anonymous or named, with a category
-- View all posts in a feed, newest first
+- View all posts in a feed with pagination support (backend only)
 - Reply to any post — anonymous or named
+- "Vibe" (Upvote) posts — toggle vibes on/off
 - Anonymous posts and replies display as "UOL Student"
 - Single Page Application — no page reloads
 - XSS protection on all user generated content
+- Feed filtering by category and "Trending" (top vibes in last 24h)
+- Automated post expiry via `expires_at` column — posts disappear after 7 days
 - Environment variables for all secrets — nothing hardcoded
 
 ---
@@ -51,14 +54,18 @@ UNISOCIAL/
 │   ├── db/                          # database only, nothing else lives here
 │   │   ├── __init__.py
 │   │   ├── connection.py            # SQLAlchemy engine, session, get_db()
-│   │   └── models.py                # User, Post, Reply SQLAlchemy models
+│   │   └── models.py                # User, Post, Reply, Vibe SQLAlchemy models
 │   ├── routes/                      # one file per feature, no route imports another route
 │   │   ├── __init__.py
 │   │   ├── auth.py                  # POST /auth/signup and POST /auth/login
-│   │   ├── posts.py                 # GET /posts and POST /posts
-│   │   └── replies.py               # GET and POST /posts/{id}/replies
+│   │   ├── posts.py                 # GET /posts (paginated) and POST /posts
+│   │   ├── replies.py               # GET and POST /posts/{id}/replies
+│   │   └── vibes.py                 # POST /posts/{id}/vibe (toggle)
 │   ├── schemas/                     # Pydantic models, separate from database models
-│   │   └── __init__.py              # UserCreate, PostCreate, PostResponse, AuthorResponse etc.
+│   │   └── __init__.py              # Pagination, User, Post, Reply schemas
+│   ├── services/                    # Business logic separated from routes
+│   │   ├── __init__.py
+│   │   └── vibe_service.py          # Logic for toggling vibes
 │   ├── .env                         # secret config, never commit this
 │   ├── main.py                      # entry point, starts the server, registers routers
 │   ├── requirements.txt             # backend dependencies with pinned versions
@@ -112,7 +119,17 @@ Database models live in db/models.py. API request and response shapes live in sc
 | text | TEXT | whitespace stripped, empty text rejected |
 | category | VARCHAR | must be one of the five valid categories |
 | is_anonymous | BOOLEAN | if true response returns "UOL Student" as author |
+| vibe_count | INTEGER | tracks total vibes, defaults to 0 |
 | created_at | TIMESTAMP | auto generated |
+| expires_at | TIMESTAMP | auto generated (defaults to 7 days from creation) |
+
+### Table: vibes
+| Column | Type | Notes |
+|---|---|---|
+| id | SERIAL | primary key |
+| user_id | INTEGER | references users.id |
+| post_id | INTEGER | references posts.id |
+| Unique Constraint | (user_id, post_id) | ensures one vibe per user per post |
 
 ### Table: replies
 | Column | Type | Notes |
@@ -140,8 +157,13 @@ Academic, Mental Health, Social, Rant, Advice
 ### Posts
 | Method | Endpoint | Auth Required | What It Does |
 |---|---|---|---|
-| GET | /posts | No | Fetch all posts, newest first |
+| GET | /posts | No | Fetch posts (paginated: page/size params) |
 | POST | /posts | Yes | Create a new post |
+
+### Vibes
+| Method | Endpoint | Auth Required | What It Does |
+|---|---|---|---|
+| POST | /posts/{id}/vibe | Yes | Toggle a vibe on/off for a post |
 
 ### Replies
 | Method | Endpoint | Auth Required | What It Does |
@@ -223,18 +245,6 @@ http://127.0.0.1:8000/docs
 - Add upvotes column to posts table
 - POST /posts/{id}/upvote — one upvote per user per post
 - Show upvote count on each post in the feed
-
-### Trending Section
-- Separate feed showing posts with most upvotes or replies in last 24 hours
-- No algorithm — just a different query with a time filter
-
-### Category Filter
-- Filter the feed by category
-- One query parameter added to GET /posts
-
-### Post Expiry
-- Posts automatically removed after 7 days
-- Keeps the feed fresh, reduces regret for students who overshared
 
 ### Post Reporting
 - Simple report button on every post

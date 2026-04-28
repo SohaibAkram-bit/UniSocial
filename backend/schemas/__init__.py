@@ -1,7 +1,26 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, EmailStr
 from datetime import datetime
-from typing import List, Literal
+from typing import List, Literal, Generic, TypeVar, Optional
+from fastapi import Query
 
+T = TypeVar('T')
+
+# --- PAGINATION SCHEMAS ---
+class PaginatedResponse(BaseModel, Generic[T]):
+    items: List[T]
+    total_count: int
+    page: int
+    size: int
+    total_pages: int
+
+class PaginationParams:
+    def __init__(
+        self,
+        page: int = Query(1, ge=1, description="Page number"),
+        size: int = Query(20, ge=1, le=50, description="Items per page")
+    ):
+        self.page = page
+        self.size = size
 
 # --- TOKEN SCHEMAS ---
 class Token(BaseModel):
@@ -11,7 +30,7 @@ class Token(BaseModel):
 
 # --- USER SCHEMAS ---
 class UserCreate(BaseModel):
-    email: str
+    email: EmailStr
     password: str = Field(max_length=72)
     first_name: str
 
@@ -85,6 +104,7 @@ class PostResponse(BaseModel):
     is_anonymous: bool
     vibe_count: int = 0
     created_at: datetime
+    expires_at: Optional[datetime] = None
     author: AuthorResponse
     has_vibed: bool = False
 

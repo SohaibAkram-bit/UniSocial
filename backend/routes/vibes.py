@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from db.connection import get_db
 from db.models import User
 from core.auth import get_current_user
-from core import vibe_service
+from services import vibe_service
 
 router = APIRouter(
     prefix="/posts",

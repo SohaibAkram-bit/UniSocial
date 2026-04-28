@@ -102,23 +102,58 @@ function renderPost(post) {
     return postCard;
 }
 
-async function fetchAndRenderPosts() {
+let currentPostsPage = 1;
+let currentCategory = '';
+let currentTrending = false;
+
+async function fetchAndRenderPosts(append = false) {
     const postsContainer = document.getElementById('posts-container');
-    postsContainer.innerHTML = '<p>Loading posts...</p>';
+    if (!append) {
+        postsContainer.innerHTML = '<p>Loading posts...</p>';
+        currentPostsPage = 1;
+    }
+
     try {
         const token = localStorage.getItem('token');
-        const posts = await apiRequest('/posts', 'GET', null, token);
+        let url = `/posts?page=${currentPostsPage}`;
+        if (currentCategory) url += `&category=${encodeURIComponent(currentCategory)}`;
+        if (currentTrending) url += `&trending=true`;
+
+        const response = await apiRequest(url, 'GET', null, token);
+        const posts = response.items;
         
-        postsContainer.innerHTML = '';
-        if (posts.length === 0) {
+        if (!append) {
+            postsContainer.innerHTML = '';
+        }
+        
+        const loadMoreBtn = document.getElementById('load-more-posts-btn');
+        if (loadMoreBtn) loadMoreBtn.remove();
+        
+        if (!append && posts.length === 0) {
             postsContainer.innerHTML = '<p>No posts yet. Be the first to share something!</p>';
             return;
         }
         const fragment = document.createDocumentFragment();
         posts.forEach(post => fragment.appendChild(renderPost(post)));
         postsContainer.appendChild(fragment);
+
+        if (response.page < response.total_pages) {
+            const btn = document.createElement('button');
+            btn.id = 'load-more-posts-btn';
+            btn.className = 'load-more-btn';
+            btn.textContent = 'Load More Posts';
+            btn.addEventListener('click', () => {
+                currentPostsPage++;
+                fetchAndRenderPosts(true);
+            });
+            postsContainer.appendChild(btn);
+        }
     } catch (error) {
-        postsContainer.innerHTML = `<p class="error">Failed to load posts: ${error.message}</p>`;
+        if (!append) {
+            postsContainer.innerHTML = `<p class="error">Failed to load posts: ${error.message}</p>`;
+        } else {
+            alert(`Failed to load more posts: ${error.message}`);
+        }
     }
 }
 
@@ -287,6 +322,61 @@ async function handleVibeClick(event) {
     }
 }
 
+async function loadMoreReplies(postId, container, btn) {
+    const page = parseInt(btn.dataset.page, 10);
+    btn.textContent = 'Loading...';
+    btn.disabled = true;
+    try {
+        const response = await apiRequest(`/posts/${postId}/replies?page=${page}`);
+        const replies = response.items;
+        
+        btn.remove(); // remove current load more button
+
+        replies.forEach(reply => {
+            const replyEl = document.createElement('div');
+            replyEl.className = 'reply-card';
+            const authorStrong = document.createElement('strong');
+            authorStrong.textContent = `${reply.author.first_name}:`;
+            replyEl.appendChild(authorStrong);
+            replyEl.appendChild(document.createTextNode(` ${reply.text}`));
+            
+            const form = container.querySelector('.nested-reply-form');
+            const loginMsg = container.querySelector('.login-message');
+            if (form) {
+                container.insertBefore(replyEl, form);
+            } else if (loginMsg) {
+                container.insertBefore(replyEl, loginMsg);
+            } else {
+                container.appendChild(replyEl);
+            }
+        });
+
+        if (response.page < response.total_pages) {
+            const newBtn = document.createElement('button');
+            newBtn.className = 'load-more-replies-btn load-more-btn';
+            newBtn.textContent = 'Load More Replies';
+            newBtn.dataset.page = page + 1;
+            newBtn.addEventListener('click', () => {
+                loadMoreReplies(postId, container, newBtn);
+            });
+            
+            const form = container.querySelector('.nested-reply-form');
+            const loginMsg = container.querySelector('.login-message');
+            if (form) {
+                container.insertBefore(newBtn, form);
+            } else if (loginMsg) {
+                container.insertBefore(newBtn, loginMsg);
+            } else {
+                container.appendChild(newBtn);
+            }
+        }
+    } catch (error) {
+        alert(`Failed to load more replies: ${error.message}`);
+        btn.textContent = 'Load More Replies';
+        btn.disabled = false;
+    }
+}
+
 /**
  * Handles toggling the replies section and loading replies.
  * @param {Event} event - The click event.
@@ -305,7 +395,8 @@ async function handleToggleRepliesClick(event) {
     if (!repliesSection.classList.contains('hidden') && repliesContainer.innerHTML === '') {
         repliesContainer.innerHTML = '<p>Loading replies...</p>';
         try {
-            const replies = await apiRequest(`/posts/${postId}/replies`);
+            const response = await apiRequest(`/posts/${postId}/replies?page=1`);
+            const replies = response.items;
             repliesContainer.innerHTML = '';
             
             if (replies.length === 0) {
@@ -322,6 +413,17 @@ async function handleToggleRepliesClick(event) {
                 });
             }
             
+            if (response.page < response.total_pages) {
+                const btn = document.createElement('button');
+                btn.className = 'load-more-replies-btn load-more-btn';
+                btn.textContent = 'Load More Replies';
+                btn.dataset.page = 2;
+                btn.addEventListener('click', () => {
+                    loadMoreReplies(postId, repliesContainer, btn);
+                });
+                repliesContainer.appendChild(btn);
+            }
+
             const token = localStorage.getItem('token');
             if (token) {
                 const form = document.createElement('form');
@@ -355,7 +457,7 @@ async function handleToggleRepliesClick(event) {
                         authorStrong.textContent = `${newReply.author.first_name}:`;
                         newReplyEl.appendChild(authorStrong);
                         newReplyEl.appendChild(document.createTextNode(` ${newReply.text}`));
-                        repliesContainer.appendChild(newReplyEl);
+                        repliesContainer.insertBefore(newReplyEl, form);
                     } catch (error) {
                         alert(`Error: ${error.message}`);
                     } finally {
@@ -391,6 +493,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set initial UI state based on whether a token exists
     updateAuthState(!!token);
     fetchAndRenderPosts();
+
+    // --- Filter & Trending UI Setup ---
+    const filterBar = document.createElement('div');
+    filterBar.className = 'filter-bar';
+    filterBar.style.marginBottom = '20px';
+    filterBar.style.display = 'flex';
+    filterBar.style.gap = '10px';
+    filterBar.innerHTML = `
+        <button id="btn-trending" class="trending-btn" style="padding: 5px 10px; cursor: pointer;">🔥 Trending (24h)</button>
+        <select id="select-category" class="category-select" style="padding: 5px;">
+            <option value="">All Categories</option>
+            <option value="Academic">Academic</option>
+            <option value="Mental Health">Mental Health</option>
+            <option value="Social">Social</option>
+            <option value="Rant">Rant</option>
+            <option value="Advice">Advice</option>
+        </select>
+    `;
+    postsContainer.parentNode.insertBefore(filterBar, postsContainer);
+
+    document.getElementById('btn-trending').addEventListener('click', (e) => {
+        currentTrending = !currentTrending;
+        e.target.style.backgroundColor = currentTrending ? '#ddd' : '';
+        currentPostsPage = 1; // reset page on filter change
+        fetchAndRenderPosts();
+    });
+    document.getElementById('select-category').addEventListener('change', (e) => {
+        currentCategory = e.target.value;
+        currentPostsPage = 1; // reset page on filter change
+        fetchAndRenderPosts();
+    });
 
     // Event Delegation for dynamically created post buttons (vibes and replies)
     postsContainer.addEventListener('click', (event) => {

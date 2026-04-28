@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -6,6 +6,7 @@ from db.connection import get_db
 from db.models import User
 from schemas import UserCreate, UserResponse, Token
 from core.auth import get_password_hash, verify_password, create_access_token
+from core.limiter import limiter
 
 router = APIRouter(
     prefix="/auth",
@@ -13,7 +14,8 @@ router = APIRouter(
 )
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def signup(user: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def signup(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     """Register a new student."""
     # Check if email is already registered
     existing_user = db.query(User).filter(User.email == user.email).first()
@@ -29,7 +31,8 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=Token)
-def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """Login and get a JWT token."""
     user = db.query(User).filter(User.email == user_credentials.username).first()
     if not user or not verify_password(user_credentials.password, user.password):

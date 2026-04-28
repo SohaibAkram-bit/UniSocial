@@ -1,10 +1,11 @@
+import math
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from db.connection import get_db
 from db.models import Reply, Post, User
-from schemas import ReplyCreate, ReplyResponse
+from schemas import ReplyCreate, ReplyResponse, PaginatedResponse, PaginationParams
 from core.auth import get_current_user
 
 router = APIRouter(
@@ -12,15 +13,21 @@ router = APIRouter(
     tags=["Replies"]
 )
 
-@router.get("/{id}/replies", response_model=List[ReplyResponse])
-def get_replies(id: int, db: Session = Depends(get_db)):
+@router.get("/{id}/replies", response_model=PaginatedResponse[ReplyResponse])
+def get_replies(id: int, db: Session = Depends(get_db), pagination: PaginationParams = Depends()):
     """Get all replies for a specific post."""
     # Verify the post actually exists first
     post = db.query(Post).filter(Post.id == id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     
-    replies = db.query(Reply).filter(Reply.post_id == id).order_by(Reply.created_at.asc()).all()
+    replies_query = db.query(Reply).filter(Reply.post_id == id)
+    total_count = replies_query.count()
+
+    replies = replies_query.order_by(Reply.created_at.asc())\
+        .offset((pagination.page - 1) * pagination.size)\
+        .limit(pagination.size)\
+        .all()
     
     result = []
     for reply in replies:
@@ -33,7 +40,13 @@ def get_replies(id: int, db: Session = Depends(get_db)):
             created_at=reply.created_at,
             author={"first_name": display_name}
         ))
-    return result
+    return PaginatedResponse(
+        items=result,
+        total_count=total_count,
+        page=pagination.page,
+        size=pagination.size,
+        total_pages=math.ceil(total_count / pagination.size)
+    )
 
 @router.post("/{id}/replies", response_model=ReplyResponse, status_code=status.HTTP_201_CREATED)
 def create_reply(id: int, reply: ReplyCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

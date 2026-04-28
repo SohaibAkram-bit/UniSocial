@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from datetime import datetime, timedelta, timezone
 
 from db.connection import Base
 
@@ -35,6 +36,7 @@ class Post(Base):
     is_anonymous = Column(Boolean, default=False)
     vibe_count = Column(Integer, default=0, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc) + timedelta(days=7))
 
     # Relationships
     author = relationship("User", back_populates="posts")

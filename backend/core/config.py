@@ -11,12 +11,16 @@ def get_env_var(var_name: str) -> str:
         raise ValueError(f"CRITICAL ERROR: Missing required environment variable '{var_name}'")
     return value
 
-# Require explicitly defined environment variables without unsafe fallbacks
-DB_HOST = get_env_var("DB_HOST")
-DB_PORT = get_env_var("DB_PORT")
-DB_NAME = get_env_var("DB_NAME")
-DB_USER = get_env_var("DB_USER")
-DB_PASSWORD = get_env_var("DB_PASSWORD")
 SECRET_KEY = get_env_var("SECRET_KEY")
 
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# Support unified DATABASE_URL (Standard in Render, Heroku, Railway, etc.)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# If unified URL is not provided, fall back to constructing it (for local dev)
+if not DATABASE_URL:
+    DB_HOST = get_env_var("DB_HOST")
+    DB_PORT = get_env_var("DB_PORT")
+    DB_NAME = get_env_var("DB_NAME")
+    DB_USER = get_env_var("DB_USER")
+    DB_PASSWORD = get_env_var("DB_PASSWORD")
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
