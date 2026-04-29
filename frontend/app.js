@@ -156,7 +156,7 @@ async function fetchAndRenderPosts(append = false) {
         }
     } catch (error) {
         if (!append) {
-            postsContainer.innerHTML = `<p class="error">Failed to load posts: ${error.message}</p>`;
+            postsContainer.innerHTML = `<p class="error" style="color: red; padding: 10px; border: 1px solid red;"><strong>Network Error!</strong><br>Tried to reach: <code>${API_BASE_URL}${url}</code><br>Details: ${error.message}<br><br><em>If the URL above is wrong, Vercel hasn't deployed your latest update!</em></p>`;
         } else {
             alert(`Failed to load more posts: ${error.message}`);
         }
