@@ -12,5 +12,8 @@ COPY . .
 # Expose the port so Back4App knows where to route traffic
 EXPOSE 8080
 
-# Start the server directly, specifying the module path
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Change working directory to backend so Python imports work correctly
+WORKDIR /app/backend
+
+# Start the server
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
