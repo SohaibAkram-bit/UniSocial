@@ -46,11 +46,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Add CORS middleware so our Vanilla JS frontend can communicate with the API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500", 
-        "http://localhost:5500",
-        "https://uni-social-tawny.vercel.app"
-    ],
+    allow_origins=["*"], # Nuclear option: accept all frontend URLs (Safe because no cookies are used)
     allow_credentials=False, # We use Bearer tokens, so browser credentials aren't needed
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
