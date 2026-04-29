@@ -4,23 +4,16 @@ from dotenv import load_dotenv
 # Load environment variables from the .env file
 load_dotenv()
 
-def get_env_var(var_name: str) -> str:
-    """Fetch an environment variable or fail loudly if it is missing."""
-    value = os.getenv(var_name)
-    if value is None:
-        raise ValueError(f"CRITICAL ERROR: Missing required environment variable '{var_name}'")
-    return value
+# Safely load SECRET_KEY with your fallback so it never crashes during health checks
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    SECRET_KEY = "super_secret_uol_key_2026!"
 
-SECRET_KEY = get_env_var("SECRET_KEY")
-
-# Support unified DATABASE_URL (Standard in Render, Heroku, Railway, etc.)
+# Safely load DATABASE_URL with your exact Neon string as a fallback
 DATABASE_URL = os.getenv("DATABASE_URL")
-
-# If unified URL is not provided, fall back to constructing it (for local dev)
 if not DATABASE_URL:
-    DB_HOST = get_env_var("DB_HOST")
-    DB_PORT = get_env_var("DB_PORT")
-    DB_NAME = get_env_var("DB_NAME")
-    DB_USER = get_env_var("DB_USER")
-    DB_PASSWORD = get_env_var("DB_PASSWORD")
-    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    DATABASE_URL = "postgresql://neondb_owner:npg_C6VuA7qTKzZk@ep-billowing-moon-anunibwt-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+# SQLAlchemy 1.4+ requires "postgresql://" but Neon/Render provide "postgres://"
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
