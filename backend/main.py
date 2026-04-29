@@ -5,28 +5,33 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from core.limiter import limiter
 from sqlalchemy import text
+import threading
 
 from db.connection import engine, Base
 import db.models  # Import models so SQLAlchemy knows about them before creating tables
 from routes import auth, posts, replies, vibes
 
+def setup_database():
+    """Runs database migrations in the background."""
+    print("Attempting to connect to the database and create tables...")
+    try:
+        Base.metadata.create_all(bind=engine)
+        # Auto-migrate: Safely add the expires_at column if it is missing
+        with engine.begin() as conn:
+            try:
+                conn.execute(text("ALTER TABLE posts ADD COLUMN expires_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() + INTERVAL '7 days'"))
+                print("Migration successful: added 'expires_at' column.")
+            except Exception:
+                pass
+        print("Database setup complete!")
+    except Exception as e:
+        print(f"Database setup failed: {e}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Bind the engine and create all tables in the database automatically on startup
-    print("Attempting to connect to the database and create tables...")
-    Base.metadata.create_all(bind=engine)
-    
-    # Auto-migrate: Safely add the expires_at column if it is missing
-    with engine.begin() as conn:
-        try:
-            conn.execute(text("ALTER TABLE posts ADD COLUMN expires_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() + INTERVAL '7 days'"))
-            print("Migration successful: added 'expires_at' column to the database.")
-        except Exception:
-            pass # The column already exists, safe to continue
-            
-    print("Database tables created successfully!")
+    # Run DB setup in the background so Uvicorn can start instantly and pass health checks
+    threading.Thread(target=setup_database).start()
     yield
-
 # Initialize the FastAPI application
 app = FastAPI(
     title="UniSocial API",
