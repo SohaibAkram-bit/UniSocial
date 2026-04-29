@@ -49,7 +49,7 @@ app.add_middleware(
     allow_origins=[
         "http://127.0.0.1:5500", 
         "http://localhost:5500",
-        "https://your-unisocial-frontend.vercel.app"  # TODO: Replace with your exact Vercel URL
+        "https://uni-social-tawny.vercel.app"
     ],
     allow_credentials=False, # We use Bearer tokens, so browser credentials aren't needed
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
