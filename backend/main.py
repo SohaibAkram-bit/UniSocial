@@ -46,7 +46,11 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Add CORS middleware so our Vanilla JS frontend can communicate with the API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],     # Safe to allow all origins because we don't use cookies
+    allow_origins=[
+        "http://127.0.0.1:5500", 
+        "http://localhost:5500",
+        "https://your-unisocial-frontend.vercel.app"  # TODO: Replace with your exact Vercel URL
+    ],
     allow_credentials=False, # We use Bearer tokens, so browser credentials aren't needed
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
