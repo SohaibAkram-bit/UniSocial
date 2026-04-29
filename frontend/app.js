@@ -4,7 +4,7 @@ const isLocal = window.location.hostname === '127.0.0.1' ||
                 window.location.protocol === 'file:';
 
 // Replace the URL below with your NEW Back4App URL
-const API_BASE_URL = isLocal ? 'http://127.0.0.1:8000' : 'https://unisocial-o9738oda.b4a.run/';
+const API_BASE_URL = isLocal ? 'http://127.0.0.1:8000' : 'https://unisocial-o9738oda.b4a.run';
 
 /**
  * A helper function to make API requests.
