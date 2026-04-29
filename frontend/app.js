@@ -3,7 +3,7 @@ const isLocal = window.location.hostname === '127.0.0.1' ||
                 window.location.hostname === 'localhost' || 
                 window.location.protocol === 'file:';
 
-const API_BASE_URL = isLocal ? 'http://127.0.0.1:8000' : 'https://api.your-production-domain.com';
+const API_BASE_URL = isLocal ? 'http://127.0.0.1:8000' : 'https://unisocial-hpnjr6n3.b4a.run';
 
 /**
  * A helper function to make API requests.
