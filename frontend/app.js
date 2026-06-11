@@ -8,7 +8,7 @@ const API_BASE_URL = window.location.hostname === '127.0.0.1' ||
                      window.location.hostname === 'localhost' || 
                      window.location.protocol === 'file:'
     ? 'http://127.0.0.1:8000'
-    : 'unisocial-production.up.railway.app';
+    : 'https://unisocial-production.up.railway.app';
 /**
  * A helper function to make API requests.
  * @param {string} endpoint - The API endpoint to call (e.g., '/posts').
