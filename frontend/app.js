@@ -4,8 +4,11 @@ const isLocal = window.location.hostname === '127.0.0.1' ||
                 window.location.protocol === 'file:';
 
 // Make sure this matches your NEW ACTIVE Back4App URL (no trailing slash!)
-const API_BASE_URL = isLocal ? 'http://127.0.0.1:8000' : 'https://unisocial-9v73fyyg.b4a.run';
-
+const API_BASE_URL = window.location.hostname === '127.0.0.1' || 
+                     window.location.hostname === 'localhost' || 
+                     window.location.protocol === 'file:'
+    ? 'http://127.0.0.1:8000'
+    : 'https://your-railway-url.railway.app';
 /**
  * A helper function to make API requests.
  * @param {string} endpoint - The API endpoint to call (e.g., '/posts').
